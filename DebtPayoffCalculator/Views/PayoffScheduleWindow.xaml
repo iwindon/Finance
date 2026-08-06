@@ -108,6 +108,9 @@
                 BorderThickness="1">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <TextBlock Text="Legend:" FontWeight="Bold" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                <Border Background="#E8EAF6" Padding="8,4" CornerRadius="3" Margin="0,0,15,0">
+                    <TextBlock Text="📜 Historical Data" FontStyle="Italic" FontWeight="SemiBold"/>
+                </Border>
                 <Border Background="#A5D6A7" Padding="8,4" CornerRadius="3" Margin="0,0,15,0">
                     <TextBlock Text="⭐ Priority Card (Extra Payment)" FontWeight="Bold" Foreground="#1B5E20"/>
                 </Border>
@@ -152,6 +155,10 @@
                     </Style>
                     <Style TargetType="DataGridRow">
                         <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsHistorical}" Value="True">
+                                <Setter Property="Background" Value="#E8EAF6"/>
+                                <Setter Property="FontStyle" Value="Italic"/>
+                            </DataTrigger>
                             <DataTrigger Binding="{Binding IsPriorityCard}" Value="True">
                                 <Setter Property="Background" Value="#A5D6A7"/>
                                 <Setter Property="FontWeight" Value="Bold"/>
@@ -170,6 +177,10 @@
                         <Setter Property="BorderThickness" Value="0"/>
                         <Setter Property="Padding" Value="10,8"/>
                         <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsHistorical}" Value="True">
+                                <Setter Property="Background" Value="#E8EAF6"/>
+                                <Setter Property="FontStyle" Value="Italic"/>
+                            </DataTrigger>
                             <DataTrigger Binding="{Binding IsPriorityCard}" Value="True">
                                 <Setter Property="Background" Value="#A5D6A7"/>
                                 <Setter Property="FontWeight" Value="Bold"/>

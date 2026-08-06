@@ -16,5 +16,6 @@ namespace DebtPayoffCalculator.Models
         public bool IsRolloverMonth { get; set; }
         public decimal RolloverAmount { get; set; }
         public bool IsPriorityCard { get; set; }
+        public bool IsHistorical { get; set; } // Indicates this is actual historical data vs projection
     }
 }

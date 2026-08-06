@@ -13,6 +13,7 @@ namespace DebtPayoffCalculator.ViewModels
     public class DebtViewModel : INotifyPropertyChanged
     {
         private readonly DataService _dataService;
+        private readonly DebtPlanService _planService;
         private string _cardName = string.Empty;
         private decimal _balance;
         private decimal _interestRate;
@@ -23,8 +24,23 @@ namespace DebtPayoffCalculator.ViewModels
         private string _resultsText = string.Empty;
         private bool _isSnowballSelected = false;
         private bool _isAvalancheSelected = true;
+        private DebtPlan? _currentPlan;
+        private string _planName = string.Empty;
 
         public ObservableCollection<CreditCard> CreditCards { get; set; }
+        public ObservableCollection<DebtPlan> SavedPlans { get; set; }
+
+        public DebtPlan? CurrentPlan
+        {
+            get => _currentPlan;
+            set { _currentPlan = value; OnPropertyChanged(); }
+        }
+
+        public string PlanName
+        {
+            get => _planName;
+            set { _planName = value; OnPropertyChanged(); }
+        }
 
         public string CardName
         {
@@ -96,6 +112,11 @@ namespace DebtPayoffCalculator.ViewModels
         public ICommand RemoveCardCommand { get; }
         public ICommand CalculateCommand { get; }
         public ICommand ViewScheduleCommand { get; }
+        public ICommand SavePlanCommand { get; }
+        public ICommand LoadPlanCommand { get; }
+        public ICommand NewPlanCommand { get; }
+        public ICommand AdjustPlanCommand { get; }
+        public ICommand DeletePlanCommand { get; }
 
         private List<PayoffScheduleEntry> _payoffSchedule = new List<PayoffScheduleEntry>();
         private int _totalMonths;
@@ -105,14 +126,22 @@ namespace DebtPayoffCalculator.ViewModels
         public DebtViewModel()
         {
             _dataService = new DataService();
+            _planService = new DebtPlanService();
             CreditCards = new ObservableCollection<CreditCard>();
+            SavedPlans = new ObservableCollection<DebtPlan>();
             AddCardCommand = new RelayCommand(AddCard, CanAddCard);
             RemoveCardCommand = new RelayCommand<CreditCard>(RemoveCard);
             CalculateCommand = new RelayCommand(Calculate, CanCalculate);
             ViewScheduleCommand = new RelayCommand(ViewSchedule, CanViewSchedule);
+            SavePlanCommand = new RelayCommand(SavePlan, CanSavePlan);
+            LoadPlanCommand = new RelayCommand<DebtPlan>(LoadPlan);
+            NewPlanCommand = new RelayCommand(NewPlan);
+            AdjustPlanCommand = new RelayCommand(AdjustPlan, CanAdjustPlan);
+            DeletePlanCommand = new RelayCommand<DebtPlan>(DeletePlan);
 
             // Load saved credit cards
             LoadData();
+            LoadSavedPlans();
         }
 
         private void LoadData()
@@ -182,6 +211,10 @@ namespace DebtPayoffCalculator.ViewModels
                 return;
             }
 
+            // Determine start date: use CurrentPlan's StartDate if loaded, otherwise default
+            DateTime startDate = CurrentPlan?.StartDate ?? new DateTime(2026, 8, 1);
+            int startMonthNumber = CurrentPlan?.CurrentMonthNumber ?? 1;
+
             // Create working copies of the cards
             var workingCards = CreditCards.Select(c => new
             {
@@ -195,7 +228,7 @@ namespace DebtPayoffCalculator.ViewModels
             decimal totalInterestPaid = 0;
             decimal totalPaid = 0;
             _payoffSchedule = new List<PayoffScheduleEntry>();
-            DateTime currentDate = new DateTime(2026, 8, 1); // Start in August 2026
+            DateTime currentDate = startDate; // Use plan's start date
             var paidOffCards = new HashSet<string>();
             decimal rolloverAmount = 0;
 
@@ -203,7 +236,7 @@ namespace DebtPayoffCalculator.ViewModels
             while (workingCards.Any(c => c.Balance > 0))
             {
                 months++;
-                currentDate = new DateTime(2026, 8, 1).AddMonths(months - 1);
+                currentDate = startDate.AddMonths(months - 1);
 
                 // Safety check to prevent infinite loop
                 if (months > 1200) // 100 years
@@ -357,6 +390,38 @@ namespace DebtPayoffCalculator.ViewModels
                 rolloverAmount += rolloverThisMonth;
             }
 
+            // If we have a plan with completed months, prepend them to the schedule
+            if (CurrentPlan != null && CurrentPlan.CompletedMonths.Count > 0)
+            {
+                var historicalEntries = new List<PayoffScheduleEntry>();
+
+                foreach (var completedMonth in CurrentPlan.CompletedMonths.OrderBy(m => m.MonthNumber))
+                {
+                    foreach (var payment in completedMonth.Payments)
+                    {
+                        historicalEntries.Add(new PayoffScheduleEntry
+                        {
+                            MonthNumber = completedMonth.MonthNumber,
+                            Date = completedMonth.Date,
+                            CardName = payment.CardName,
+                            StartingBalance = payment.StartingBalance,
+                            Payment = payment.PaymentAmount,
+                            InterestCharged = payment.InterestCharged,
+                            PrincipalPaid = payment.PaymentAmount - payment.InterestCharged,
+                            EndingBalance = payment.EndingBalance,
+                            IsPaidOff = payment.PaidOff,
+                            IsRolloverMonth = false,
+                            RolloverAmount = 0,
+                            IsPriorityCard = false, // Historical months don't need priority highlighting
+                            IsHistorical = true // Mark as historical data
+                        });
+                    }
+                }
+
+                // Combine historical and projected entries
+                _payoffSchedule = historicalEntries.Concat(_payoffSchedule).ToList();
+            }
+
             _totalMonths = months;
             _totalInterest = totalInterestPaid;
             _totalPaid = totalPaid;
@@ -394,6 +459,157 @@ namespace DebtPayoffCalculator.ViewModels
 
             var window = new Views.PayoffScheduleWindow(viewModel);
             window.Show();
+        }
+
+        private void LoadSavedPlans()
+        {
+            SavedPlans.Clear();
+            var plans = _planService.LoadAllPlans();
+            foreach (var plan in plans)
+            {
+                SavedPlans.Add(plan);
+            }
+        }
+
+        private bool CanSavePlan()
+        {
+            return !string.IsNullOrWhiteSpace(PlanName) && CreditCards.Count > 0;
+        }
+
+        private void SavePlan()
+        {
+            if (CurrentPlan == null)
+            {
+                // Create new plan
+                CurrentPlan = new DebtPlan
+                {
+                    Name = PlanName,
+                    CreatedDate = DateTime.Now,
+                    LastModifiedDate = DateTime.Now,
+                    StartDate = new DateTime(2026, 8, 1), // Default start date
+                    PayoffMethod = PayoffMethod,
+                    OriginalExtraPayment = ExtraPayment,
+                    CurrentExtraPayment = ExtraPayment,
+                    CurrentMonthNumber = 1
+                };
+
+                // Snapshot current cards
+                foreach (var card in CreditCards)
+                {
+                    var savedCard = new SavedCreditCard
+                    {
+                        Name = card.Name,
+                        Balance = card.Balance,
+                        InterestRate = card.InterestRate,
+                        MinimumPayment = card.MinimumPayment,
+                        DueDate = card.DueDate.Day
+                    };
+                    CurrentPlan.OriginalCards.Add(savedCard);
+                    CurrentPlan.CurrentCards.Add(savedCard);
+                }
+            }
+            else
+            {
+                // Update existing plan
+                CurrentPlan.Name = PlanName;
+                CurrentPlan.LastModifiedDate = DateTime.Now;
+            }
+
+            _planService.SavePlan(CurrentPlan);
+            LoadSavedPlans();
+            ResultsText = $"Plan '{PlanName}' saved successfully!";
+        }
+
+        private void LoadPlan(DebtPlan? plan)
+        {
+            if (plan == null) return;
+
+            CurrentPlan = plan;
+            PlanName = plan.Name;
+            PayoffMethod = plan.PayoffMethod;
+            ExtraPayment = plan.CurrentExtraPayment;
+
+            // Load cards from the current plan state
+            CreditCards.Clear();
+            foreach (var savedCard in plan.CurrentCards)
+            {
+                CreditCards.Add(new CreditCard
+                {
+                    Name = savedCard.Name,
+                    Balance = savedCard.Balance,
+                    InterestRate = savedCard.InterestRate,
+                    MinimumPayment = savedCard.MinimumPayment,
+                    DueDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, savedCard.DueDate)
+                });
+            }
+
+            ResultsText = $"Plan '{plan.Name}' loaded. Last modified: {plan.LastModifiedDate:g}";
+        }
+
+        private void NewPlan()
+        {
+            CurrentPlan = null;
+            PlanName = string.Empty;
+            CreditCards.Clear();
+            ResultsText = string.Empty;
+            _payoffSchedule.Clear();
+        }
+
+        private bool CanAdjustPlan()
+        {
+            return CurrentPlan != null;
+        }
+
+        private void AdjustPlan()
+        {
+            if (CurrentPlan == null) return;
+
+            // Create an adjustment record
+            var adjustment = new PlanAdjustment
+            {
+                AdjustmentDate = DateTime.Now,
+                EffectiveMonthNumber = CurrentPlan.CurrentMonthNumber,
+                AdjustmentType = "ExtraPaymentChange",
+                OldExtraPayment = CurrentPlan.CurrentExtraPayment,
+                NewExtraPayment = ExtraPayment,
+                Description = $"Extra payment adjusted from {CurrentPlan.CurrentExtraPayment:C} to {ExtraPayment:C}",
+                Reason = "User adjustment"
+            };
+
+            CurrentPlan.Adjustments.Add(adjustment);
+            CurrentPlan.CurrentExtraPayment = ExtraPayment;
+
+            // Update current card balances
+            CurrentPlan.CurrentCards.Clear();
+            foreach (var card in CreditCards)
+            {
+                CurrentPlan.CurrentCards.Add(new SavedCreditCard
+                {
+                    Name = card.Name,
+                    Balance = card.Balance,
+                    InterestRate = card.InterestRate,
+                    MinimumPayment = card.MinimumPayment,
+                    DueDate = card.DueDate.Day
+                });
+            }
+
+            _planService.SavePlan(CurrentPlan);
+            ResultsText = $"Plan adjusted on {DateTime.Now:g}. New extra payment: {ExtraPayment:C}";
+        }
+
+        private void DeletePlan(DebtPlan? plan)
+        {
+            if (plan == null) return;
+
+            _planService.DeletePlan(plan.Name);
+            SavedPlans.Remove(plan);
+
+            if (CurrentPlan?.Name == plan.Name)
+            {
+                NewPlan();
+            }
+
+            ResultsText = $"Plan '{plan.Name}' deleted.";
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
