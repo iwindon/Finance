@@ -1,0 +1,252 @@
+<Window x:Class="DebtPayoffCalculator.Views.PayoffScheduleWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Detailed Payoff Schedule"
+        Height="700" Width="1200"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}">
+
+    <Grid Margin="30">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <TextBlock Grid.Row="0" 
+                  Text="Detailed Payoff Schedule"
+                  FontSize="32"
+                  FontWeight="Bold"
+                  Foreground="{StaticResource DarkBlueBrush}"
+                  Margin="0,0,0,20"/>
+
+        <!-- Summary Section -->
+        <Border Grid.Row="1"
+                Background="White"
+                CornerRadius="10"
+                Padding="25"
+                Margin="0,0,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Payoff Method -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Method"
+                              FontSize="12"
+                              Foreground="#666666"
+                              Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding PayoffMethod}"
+                              FontSize="18"
+                              FontWeight="Bold"
+                              Foreground="{StaticResource DarkBlueBrush}"/>
+                </StackPanel>
+
+                <!-- Extra Payment -->
+                <StackPanel Grid.Column="1">
+                    <TextBlock Text="Extra Payment"
+                              FontSize="12"
+                              Foreground="#666666"
+                              Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding ExtraPayment, StringFormat=C2}"
+                              FontSize="18"
+                              FontWeight="Bold"
+                              Foreground="{StaticResource DarkBlueBrush}"/>
+                </StackPanel>
+
+                <!-- Time to Payoff -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Time to Payoff"
+                              FontSize="12"
+                              Foreground="#666666"
+                              Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding PayoffTimeString}"
+                              FontSize="18"
+                              FontWeight="Bold"
+                              Foreground="{StaticResource DarkBlueBrush}"/>
+                </StackPanel>
+
+                <!-- Total Interest -->
+                <StackPanel Grid.Column="3">
+                    <TextBlock Text="Total Interest"
+                              FontSize="12"
+                              Foreground="#666666"
+                              Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding TotalInterest, StringFormat=C2}"
+                              FontSize="18"
+                              FontWeight="Bold"
+                              Foreground="#E53935"/>
+                </StackPanel>
+
+                <!-- Total Paid -->
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="Total Paid"
+                              FontSize="12"
+                              Foreground="#666666"
+                              Margin="0,0,0,5"/>
+                    <TextBlock Text="{Binding TotalPaid, StringFormat=C2}"
+                              FontSize="18"
+                              FontWeight="Bold"
+                              Foreground="{StaticResource DarkBlueBrush}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Legend -->
+        <Border Grid.Row="2"
+                Background="#F5F5F5"
+                CornerRadius="5"
+                Padding="15,10"
+                Margin="0,0,0,10"
+                BorderBrush="#E0E0E0"
+                BorderThickness="1">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="Legend:" FontWeight="Bold" Margin="0,0,20,0" VerticalAlignment="Center"/>
+                <Border Background="#A5D6A7" Padding="8,4" CornerRadius="3" Margin="0,0,15,0">
+                    <TextBlock Text="⭐ Priority Card (Extra Payment)" FontWeight="Bold" Foreground="#1B5E20"/>
+                </Border>
+                <Border Background="#FFF9C4" Padding="8,4" CornerRadius="3" Margin="0,0,15,0">
+                    <TextBlock Text="Rollover Month" FontWeight="SemiBold"/>
+                </Border>
+                <Border Background="#C8E6C9" Padding="8,4" CornerRadius="3">
+                    <TextBlock Text="✓ Paid Off" FontWeight="Bold" Foreground="#2E7D32"/>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- Schedule Grid -->
+        <Border Grid.Row="2"
+                Background="White"
+                CornerRadius="10"
+                Padding="20"
+                Margin="0,50,0,0">
+            <DataGrid ItemsSource="{Binding ScheduleEntries}"
+                     AutoGenerateColumns="False"
+                     IsReadOnly="True"
+                     CanUserAddRows="False"
+                     CanUserDeleteRows="False"
+                     CanUserResizeRows="False"
+                     GridLinesVisibility="Horizontal"
+                     HeadersVisibility="Column"
+                     BorderThickness="0"
+                     Background="White"
+                     RowBackground="White"
+                     AlternatingRowBackground="#F8F9FA"
+                     SelectionMode="Single"
+                     SelectionUnit="FullRow">
+
+                <DataGrid.Resources>
+                    <Style TargetType="DataGridColumnHeader">
+                        <Setter Property="Background" Value="{StaticResource AccentBlueBrush}"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="FontWeight" Value="Bold"/>
+                        <Setter Property="Padding" Value="10,8"/>
+                        <Setter Property="BorderThickness" Value="0,0,1,0"/>
+                        <Setter Property="BorderBrush" Value="#E0E0E0"/>
+                    </Style>
+                    <Style TargetType="DataGridRow">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsPriorityCard}" Value="True">
+                                <Setter Property="Background" Value="#A5D6A7"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Foreground" Value="#1B5E20"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsPaidOff}" Value="True">
+                                <Setter Property="Background" Value="#C8E6C9"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsRolloverMonth}" Value="True">
+                                <Setter Property="Background" Value="#FFF9C4"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="10,8"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsPriorityCard}" Value="True">
+                                <Setter Property="Background" Value="#A5D6A7"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                                <Setter Property="Foreground" Value="#1B5E20"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsPaidOff}" Value="True">
+                                <Setter Property="Background" Value="#C8E6C9"/>
+                                <Setter Property="FontWeight" Value="Bold"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsRolloverMonth}" Value="True">
+                                <Setter Property="Background" Value="#FFF9C4"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </DataGrid.Resources>
+
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Focus" Width="60">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="⭐ PAY" 
+                                          FontWeight="Bold"
+                                          Foreground="#1B5E20"
+                                          HorizontalAlignment="Center"
+                                          Visibility="{Binding IsPriorityCard, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Month" 
+                                       Binding="{Binding MonthNumber}"
+                                       Width="70"/>
+                    <DataGridTextColumn Header="Date" 
+                                       Binding="{Binding Date, StringFormat=MMM yyyy}"
+                                       Width="100"/>
+                    <DataGridTextColumn Header="Card Name" 
+                                       Binding="{Binding CardName}"
+                                       Width="*"/>
+                    <DataGridTextColumn Header="Starting Balance" 
+                                       Binding="{Binding StartingBalance, StringFormat=C2}"
+                                       Width="130"/>
+                    <DataGridTextColumn Header="Payment" 
+                                       Binding="{Binding Payment, StringFormat=C2}"
+                                       Width="100"/>
+                    <DataGridTextColumn Header="Interest" 
+                                       Binding="{Binding InterestCharged, StringFormat=C2}"
+                                       Width="100"/>
+                    <DataGridTextColumn Header="Principal" 
+                                       Binding="{Binding PrincipalPaid, StringFormat=C2}"
+                                       Width="100"/>
+                    <DataGridTextColumn Header="Ending Balance" 
+                                       Binding="{Binding EndingBalance, StringFormat=C2}"
+                                       Width="130"/>
+                    <DataGridTemplateColumn Header="Status" Width="150">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="✓ PAID OFF!" 
+                                              FontWeight="Bold"
+                                              Foreground="#2E7D32"
+                                              Visibility="{Binding IsPaidOff, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    <TextBlock Visibility="{Binding IsRolloverMonth, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <Run Text="Roll: " FontWeight="Bold"/>
+                                        <Run Text="{Binding RolloverAmount, StringFormat=C2}" 
+                                             FontWeight="Bold"
+                                             Foreground="{StaticResource AccentBlueBrush}"/>
+                                    </TextBlock>
+                                    <TextBlock Text="▶ EXTRA PAYMENT" 
+                                              FontWeight="Bold"
+                                              Foreground="#1B5E20"
+                                              FontSize="11"
+                                              Visibility="{Binding IsPriorityCard, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</Window>
