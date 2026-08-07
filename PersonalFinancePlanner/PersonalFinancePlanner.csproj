@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<OutputType>WinExe</OutputType>
+	<TargetFramework>net8.0-windows</TargetFramework>
+	<UseWPF>true</UseWPF>
+	<Nullable>enable</Nullable>
+	<AssemblyName>PersonalFinancePlanner</AssemblyName>
+	<RootNamespace>PersonalFinancePlanner</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc2" />
+	<PackageReference Include="CsvHelper" Version="30.0.1" />
+  </ItemGroup>
+
+</Project>

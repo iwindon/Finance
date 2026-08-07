@@ -1,0 +1,332 @@
+<UserControl x:Class="PersonalFinancePlanner.Views.DebtView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:PersonalFinancePlanner.ViewModels"
+             Background="{StaticResource BackgroundBrush}">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" 
+                Background="{StaticResource PrimaryBlueBrush}"
+                CornerRadius="10"
+                Padding="20"
+                Margin="0,0,0,20">
+            <StackPanel>
+                <TextBlock Text="💳 Debt Payoff Calculator" 
+                          FontSize="28" 
+                          FontWeight="Bold"
+                          Foreground="White"
+                          HorizontalAlignment="Center"/>
+                <TextBlock Text="Plan your path to financial freedom using the Snowball or Avalanche method" 
+                          FontSize="14" 
+                          Foreground="#E3F2FD"
+                          HorizontalAlignment="Center"
+                          Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.3*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Panel - Input Section -->
+            <ScrollViewer Grid.Column="0" 
+                         VerticalScrollBarVisibility="Auto"
+                         Margin="0,0,10,0">
+                <StackPanel>
+                    <!-- Plan Management Section -->
+                    <GroupBox Header="📋 Plan Management">
+                        <StackPanel>
+                            <!-- Plan Name -->
+                            <Grid Margin="0,0,0,10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.Column="0" Content="Plan Name:" VerticalAlignment="Center"/>
+                                <TextBox Grid.Column="1" 
+                                        Text="{Binding PlanName, UpdateSourceTrigger=PropertyChanged}"
+                                        Style="{StaticResource ModernTextBoxStyle}"
+                                        Margin="5"/>
+                            </Grid>
+
+                            <!-- Plan Action Buttons -->
+                            <WrapPanel Margin="0,5,0,10">
+                                <Button Content="💾 Save Plan"
+                                       Command="{Binding SavePlanCommand}"
+                                       Style="{StaticResource ModernButtonStyle}"
+                                       Margin="0,0,5,0"/>
+                                <Button Content="📂 New Plan"
+                                       Command="{Binding NewPlanCommand}"
+                                       Style="{StaticResource ModernButtonStyle}"
+                                       Margin="0,0,5,0"/>
+                                <Button Content="🔧 Adjust Plan"
+                                       Command="{Binding AdjustPlanCommand}"
+                                       Style="{StaticResource ModernButtonStyle}"
+                                       Margin="0,0,5,0"/>
+                            </WrapPanel>
+
+                            <!-- Saved Plans List -->
+                            <TextBlock Text="Saved Plans:" FontWeight="SemiBold" Margin="0,5,0,5"/>
+                            <ListBox ItemsSource="{Binding SavedPlans}"
+                                    MaxHeight="120"
+                                    Margin="0,0,0,5">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                                <TextBlock FontSize="10" Foreground="Gray">
+                                                    <Run Text="Modified: "/>
+                                                    <Run Text="{Binding LastModifiedDate, StringFormat='{}{0:g}'}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                            <Button Grid.Column="1"
+                                                   Content="Load"
+                                                   Command="{Binding DataContext.LoadPlanCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                   CommandParameter="{Binding}"
+                                                   Margin="5,0"
+                                                   Padding="8,2"
+                                                   Background="{StaticResource PrimaryBlueBrush}"
+                                                   Foreground="White"
+                                                   BorderThickness="0"
+                                                   Cursor="Hand"/>
+
+                                            <Button Grid.Column="2"
+                                                   Content="Delete"
+                                                   Command="{Binding DataContext.DeletePlanCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                   CommandParameter="{Binding}"
+                                                   Padding="8,2"
+                                                   Background="#E53935"
+                                                   Foreground="White"
+                                                   BorderThickness="0"
+                                                   Cursor="Hand"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <!-- Add Credit Card Section -->
+                    <GroupBox Header="➕ Add Credit Card">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Card Name -->
+                            <Label Grid.Row="0" Grid.Column="0" Content="Card Name:" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="0" Grid.Column="1" 
+                                    Text="{Binding CardName, UpdateSourceTrigger=PropertyChanged}"
+                                    Style="{StaticResource ModernTextBoxStyle}"
+                                    Margin="5"/>
+
+                            <!-- Balance -->
+                            <Label Grid.Row="1" Grid.Column="0" Content="Amount Owed:" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="1" Grid.Column="1" 
+                                    Text="{Binding Balance, TargetNullValue=''}"
+                                    Style="{StaticResource ModernTextBoxStyle}"
+                                    Margin="5"
+                                    GotKeyboardFocus="NumericTextBox_GotKeyboardFocus"
+                                    PreviewMouseLeftButtonDown="NumericTextBox_PreviewMouseLeftButtonDown"/>
+
+                            <!-- Interest Rate -->
+                            <Label Grid.Row="2" Grid.Column="0" Content="Interest Rate (%):" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="2" Grid.Column="1" 
+                                    Text="{Binding InterestRate, TargetNullValue=''}"
+                                    Style="{StaticResource ModernTextBoxStyle}"
+                                    Margin="5"
+                                    GotKeyboardFocus="NumericTextBox_GotKeyboardFocus"
+                                    PreviewMouseLeftButtonDown="NumericTextBox_PreviewMouseLeftButtonDown"/>
+
+                            <!-- Minimum Payment -->
+                            <Label Grid.Row="3" Grid.Column="0" Content="Minimum Payment:" VerticalAlignment="Center"/>
+                            <TextBox Grid.Row="3" Grid.Column="1" 
+                                    Text="{Binding MinimumPayment, TargetNullValue=''}"
+                                    Style="{StaticResource ModernTextBoxStyle}"
+                                    Margin="5"
+                                    GotKeyboardFocus="NumericTextBox_GotKeyboardFocus"
+                                    PreviewMouseLeftButtonDown="NumericTextBox_PreviewMouseLeftButtonDown"/>
+
+                            <!-- Due Date -->
+                            <Label Grid.Row="4" Grid.Column="0" Content="Due Date:" VerticalAlignment="Center"/>
+                            <DatePicker Grid.Row="4" Grid.Column="1" 
+                                       SelectedDate="{Binding DueDate}"
+                                       Margin="5"/>
+
+                            <!-- Add Button -->
+                            <Button Grid.Row="5" Grid.Column="1"
+                                   Content="Add Card"
+                                   Command="{Binding AddCardCommand}"
+                                   Style="{StaticResource ModernButtonStyle}"
+                                   HorizontalAlignment="Right"
+                                   Margin="5,15,5,5"/>
+                        </Grid>
+                    </GroupBox>
+
+                    <!-- Credit Cards List -->
+                    <GroupBox Header="💳 Your Credit Cards" Margin="0,20,0,0">
+                        <ListBox ItemsSource="{Binding CreditCards}"
+                                MinHeight="200"
+                                MaxHeight="300">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{StaticResource BorderBrush}"
+                                           BorderThickness="1"
+                                           CornerRadius="5"
+                                           Padding="10"
+                                           Margin="5"
+                                           Background="{StaticResource CardBackgroundBrush}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding Name}" 
+                                                          FontWeight="Bold" 
+                                                          FontSize="15"
+                                                          Foreground="{StaticResource DarkBlueBrush}"/>
+                                                <TextBlock Margin="0,5,0,0">
+                                                    <Run Text="Balance: " FontWeight="SemiBold"/>
+                                                    <Run Text="{Binding Balance, StringFormat=C2}"/>
+                                                </TextBlock>
+                                                <TextBlock>
+                                                    <Run Text="Interest Rate: " FontWeight="SemiBold"/>
+                                                    <Run Text="{Binding InterestRate, StringFormat=N2}"/>
+                                                    <Run Text="%"/>
+                                                </TextBlock>
+                                                <TextBlock>
+                                                    <Run Text="Minimum Payment: " FontWeight="SemiBold"/>
+                                                    <Run Text="{Binding MinimumPayment, StringFormat=C2}"/>
+                                                </TextBlock>
+                                                <TextBlock>
+                                                    <Run Text="Due Date: " FontWeight="SemiBold"/>
+                                                    <Run Text="{Binding DueDate, StringFormat=d}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                            <Button Grid.Column="1"
+                                                   Content="Remove"
+                                                   Command="{Binding DataContext.RemoveCardCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                   CommandParameter="{Binding}"
+                                                   Style="{StaticResource ModernButtonStyle}"
+                                                   Background="#E53935"
+                                                   VerticalAlignment="Top"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </GroupBox>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Right Panel - Calculation Section -->
+            <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                <!-- Payoff Method Selection -->
+                <GroupBox Header="📊 Payoff Method">
+                    <StackPanel>
+                        <RadioButton Content="Avalanche Method (Highest Interest First)"
+                                    IsChecked="{Binding IsAvalancheSelected}"
+                                    GroupName="PayoffMethod"
+                                    Style="{StaticResource ModernRadioButtonStyle}"
+                                    Command="{Binding DataContext.CalculateCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    Click="RadioButton_Click"/>
+                        <TextBlock Text="Pay off cards with the highest interest rate first to minimize total interest paid."
+                                  FontSize="11"
+                                  Foreground="{StaticResource TextSecondaryBrush}"
+                                  TextWrapping="Wrap"
+                                  Margin="30,0,0,10"/>
+
+                        <RadioButton Content="Snowball Method (Smallest Balance First)"
+                                    IsChecked="{Binding IsSnowballSelected}"
+                                    GroupName="PayoffMethod"
+                                    Style="{StaticResource ModernRadioButtonStyle}"
+                                    Click="RadioButton_Click"/>
+                        <TextBlock Text="Pay off cards with the smallest balance first for quick wins and motivation."
+                                  FontSize="11"
+                                  Foreground="{StaticResource TextSecondaryBrush}"
+                                  TextWrapping="Wrap"
+                                  Margin="30,0,0,10"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Extra Payment -->
+                <GroupBox Header="💰 Extra Monthly Payment" Margin="0,20,0,0">
+                    <StackPanel>
+                        <Label Content="Additional Amount Per Month:"/>
+                        <TextBox Text="{Binding ExtraPayment, TargetNullValue=''}"
+                                Style="{StaticResource ModernTextBoxStyle}"
+                                Margin="0,5"
+                                GotKeyboardFocus="NumericTextBox_GotKeyboardFocus"
+                                PreviewMouseLeftButtonDown="NumericTextBox_PreviewMouseLeftButtonDown"/>
+                        <TextBlock Text="Enter any extra amount you can pay each month beyond minimum payments."
+                                  FontSize="11"
+                                  Foreground="{StaticResource TextSecondaryBrush}"
+                                  TextWrapping="Wrap"
+                                  Margin="0,5"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Calculate Button -->
+                <Button Content="Calculate Payoff Plan"
+                       Command="{Binding CalculateCommand}"
+                       Style="{StaticResource ModernButtonStyle}"
+                       FontSize="16"
+                       Margin="0,20,0,10"
+                       HorizontalAlignment="Stretch"
+                       Height="45"/>
+
+                <!-- View Schedule Button -->
+                <Button Content="View Detailed Schedule"
+                       Command="{Binding ViewScheduleCommand}"
+                       Style="{StaticResource ModernButtonStyle}"
+                       FontSize="16"
+                       Margin="0,0,0,20"
+                       HorizontalAlignment="Stretch"
+                       Height="45"/>
+
+                <!-- Results -->
+                <GroupBox Header="📈 Results">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                                 MaxHeight="250">
+                        <TextBlock Text="{Binding ResultsText}"
+                                  FontSize="13"
+                                  TextWrapping="Wrap"
+                                  Padding="5"
+                                  FontFamily="Consolas"
+                                  LineHeight="22"/>
+                    </ScrollViewer>
+                </GroupBox>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
+
