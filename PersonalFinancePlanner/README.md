@@ -1,126 +1,190 @@
 # Personal Finance Planner
 
-A comprehensive Windows desktop application for managing your personal finances, built with WPF and .NET 8.
+A comprehensive WPF desktop application for managing personal finances, tracking expenses, budgeting, debt management, and savings goals.
 
-## 🌟 Features
+## Features
 
 ### 📊 Dashboard
-- **Summary Cards**: Quick overview of monthly income, expenses, budget remaining, savings, and total debt
-- **Spending by Category**: Interactive pie chart showing where your money goes
-- **Income vs Expenses Trend**: Line chart tracking the last 6 months
+- Real-time financial overview and summary statistics
+- Visual representation of financial health
+- Quick access to key metrics
 
-### 💳 Transactions
-- **Manual Entry**: Add transactions with date, description, amount, and category
-- **CSV Import**: Bulk import transactions from bank exports
-- **Category Filtering**: View transactions by specific categories
-- **Income/Expense Tracking**: Separate income and expense transactions
+### 💰 Transaction Management
+- Track multiple transaction types:
+  - **Expenses** - Daily spending and bills
+  - **Income** - Salary, wages, and other income sources
+  - **Savings** - Money set aside for savings goals
+  - **Debt Payments** - Credit card and loan payments
+- Categorize transactions for better organization
+- Date-based transaction tracking
+- Add, edit, and delete transactions
+- Filter and search transaction history
 
-### 📈 Budget Management
-- **Pre-defined Categories**: Housing, Transportation, Food, Utilities, Entertainment, Healthcare, Personal Care, Debt Payments, Savings, Other
-- **Custom Categories**: Add your own budget categories
-- **Budget vs Actual**: Real-time comparison showing how much you've spent vs budgeted
-- **Progress Tracking**: See percentage used for each category
+### 📈 Budget Tracking
+- Create and manage budget categories
+- Set spending limits for each category
+- Monitor budget vs. actual spending
+- Visual indicators for budget adherence
 
-### 💰 Debt Payoff Calculator
-- **Credit Card Management**: Track multiple credit cards with balances, interest rates, and minimum payments
-- **Payoff Methods**:
-  - **Avalanche Method**: Pay highest interest rate first (saves most money)
-  - **Snowball Method**: Pay smallest balance first (quick wins for motivation)
-- **Extra Payment Support**: Factor in additional monthly payments
-- **Detailed Results**: See total payoff time, interest paid, and average monthly payment
+### 💳 Debt Management
+- Track multiple credit cards and debts
+- Monitor balances, interest rates, and minimum payments
+- Create debt payoff plans
+- **Payoff Schedule Window** - Visualize and plan debt reduction strategies
+- Payment history tracking
+- Plan adjustments and progress monitoring
 
-### 🏦 Savings Tracker
-- **Balance History**: Track your savings balance over time
-- **Visual Trends**: Line chart showing savings growth
-- **Notes**: Add context to each savings entry
+### 🎯 Savings Goals
+- Set and track savings goals
+- Monitor progress toward financial targets
+- Record savings contributions
+- Track savings over time
 
-## 🎨 Design
-- Modern blue-themed UI throughout
-- Sidebar navigation for easy access to all sections
-- Responsive layouts that adapt to window size
-- Professional dashboard-style interface
+## Technical Architecture
 
-## 💾 Data Persistence
-All data is automatically saved to:
+### Design Pattern
+- **MVVM (Model-View-ViewModel)** - Clean separation of concerns
+- Command pattern for user interactions
+- Data binding for reactive UI updates
+
+### Technology Stack
+- **Framework**: .NET with WPF (Windows Presentation Foundation)
+- **Language**: C#
+- **UI**: XAML with modern blue-themed design system
+
+### Project Structure
 ```
-%LocalAppData%\DebtPayoffCalculator\
+PersonalFinancePlanner/
+├── Models/                    # Data models
+│   ├── Transaction.cs
+│   ├── BudgetCategory.cs
+│   ├── CreditCard.cs
+│   ├── DebtPlan.cs
+│   ├── SavingsEntry.cs
+│   ├── PaymentHistory.cs
+│   ├── PayoffScheduleEntry.cs
+│   └── PlanAdjustment.cs
+├── ViewModels/                # View models (business logic)
+│   ├── DashboardViewModel.cs
+│   ├── TransactionsViewModel.cs
+│   ├── BudgetViewModel.cs
+│   ├── DebtViewModel.cs
+│   ├── SavingsViewModel.cs
+│   ├── PayoffScheduleViewModel.cs
+│   └── NavigationViewModel.cs
+├── Views/                     # UI views
+│   ├── DashboardView.xaml
+│   ├── TransactionsView.xaml
+│   ├── BudgetView.xaml
+│   ├── DebtView.xaml
+│   ├── SavingsView.xaml
+│   └── PayoffScheduleWindow.xaml
+├── Services/                  # Business logic services
+│   ├── DataService.cs
+│   ├── TransactionService.cs
+│   ├── BudgetService.cs
+│   ├── DebtPlanService.cs
+│   ├── SavingsService.cs
+│   └── CreditCardPaymentService.cs
+├── App.xaml                   # Application resources and styles
+└── MainWindow.xaml            # Main application window
 ```
 
-Files:
-- `transactions.json` - All your transactions
-- `budget.json` - Budget categories and amounts
-- `creditcards.json` - Credit card debt information
-- `savings.json` - Savings history
+## Design System
 
-## 🚀 How to Run
+### Color Palette
+The application uses a professional blue-themed color scheme:
+- **Primary Blue**: #1E88E5
+- **Dark Blue**: #1565C0
+- **Light Blue**: #42A5F5
+- **Accent Blue**: #2196F3
+- **Background**: #F5F9FC
+- **Card Background**: #FFFFFF
 
-### From Command Line:
-```powershell
-dotnet run --project DebtPayoffCalculator/DebtPayoffCalculator.csproj
-```
+### UI Components
+- Modern rounded corners (5-10px radius)
+- Consistent spacing and padding
+- Custom styled buttons, text boxes, and form controls
+- Hover effects for interactive elements
+- Disabled state styling
 
-### From Visual Studio:
-1. Open `Debt.slnx` in Visual Studio
-2. Set `DebtPayoffCalculator` as the startup project
-3. Press F5 to run
+## Getting Started
 
-## 📝 CSV Import Format
+### Prerequisites
+- Windows OS
+- .NET Framework or .NET 6+ SDK
+- Visual Studio 2019 or later (recommended)
 
-To import transactions, create a CSV file with these columns:
-```csv
-Date,Description,Amount,Category
-2024-01-15,Grocery Store,-125.50,Food & Dining
-2024-01-16,Paycheck,2500.00,Income
-```
+### Installation
+1. Clone the repository
+2. Open `PersonalFinancePlanner.sln` in Visual Studio
+3. Restore NuGet packages
+4. Build the solution (Ctrl+Shift+B)
+5. Run the application (F5)
 
-- **Date**: Format: YYYY-MM-DD or MM/DD/YYYY
-- **Description**: Any text
-- **Amount**: Positive for income, negative for expenses (or just use the absolute value)
-- **Category**: Optional - will default to "Other" if not specified
+### First-Time Setup
+1. Launch the application
+2. Navigate through the sidebar to access different modules
+3. Start by adding transactions or setting up your budget
+4. Add credit cards in the Debt section if needed
+5. Set savings goals in the Savings section
 
-## 🎯 Usage Tips
+## Usage
 
-1. **Start with Budget**: Set up your monthly budget in the Budget section first
-2. **Enter Transactions**: Add your income and expenses regularly
-3. **Track Debt**: Enter all credit cards in the Debt Payoff section
-4. **Monitor Progress**: Check the Dashboard to see your financial health
-5. **Save Regularly**: Update your savings balance when it changes
+### Adding a Transaction
+1. Go to the **Transactions** view
+2. Fill in the transaction details:
+   - Date
+   - Description
+   - Amount
+   - Category
+   - Type (Expense/Income/Savings/Debt Payment)
+3. For Debt Payments, select the credit card
+4. Click "Add Transaction"
 
-## 🛠️ Technologies Used
+### Managing Debt
+1. Navigate to the **Debt** view
+2. Add your credit cards with balance and interest rate information
+3. Create a debt payoff plan
+4. Use the **Payoff Schedule** window to visualize your repayment strategy
+5. Record payments as you make them
 
-- **.NET 8.0** - Modern cross-platform framework
-- **WPF** - Windows Presentation Foundation for rich UI
-- **LiveCharts2** - Beautiful interactive charts
-- **CsvHelper** - CSV file parsing
-- **MVVM Pattern** - Clean separation of concerns
+### Tracking Budget
+1. Go to the **Budget** view
+2. Create budget categories
+3. Set spending limits
+4. Monitor your spending against the budget
 
-## 📦 Dependencies
+### Setting Savings Goals
+1. Open the **Savings** view
+2. Define your savings goals with target amounts
+3. Record contributions regularly
+4. Track progress toward your goals
 
-- LiveChartsCore.SkiaSharpView.WPF (2.0.0-rc2)
-- CsvHelper (30.0.1)
+## Data Persistence
+The application uses a service-based architecture for data management. All financial data is managed through dedicated services:
+- TransactionService for transaction operations
+- BudgetService for budget management
+- DebtPlanService for debt tracking
+- SavingsService for savings goals
+- CreditCardPaymentService for payment processing
 
-## 🔄 Data Flow
+## Future Enhancements
+- Data export to CSV/Excel
+- Reporting and analytics
+- Multi-currency support
+- Recurring transaction templates
+- Mobile companion app
+- Cloud sync capabilities
 
-1. User enters data in any section
-2. ViewModel processes and validates the data
-3. Service layer saves to JSON files in AppData
-4. Dashboard automatically refreshes on navigation
-5. Data persists between sessions
+## Contributing
+Contributions are welcome! Please ensure code follows the existing MVVM pattern and maintains the design system consistency.
 
-## 🎨 Color Scheme
-
-- Primary Blue: #1E88E5
-- Dark Blue: #1565C0
-- Light Blue: #42A5F5
-- Background: #F5F9FC
-- Success Green: #4CAF50
-- Warning Orange: #FF9800
-- Danger Red: #F44336
-
-## 📄 License
-
-This is a personal finance management tool. Use responsibly and always back up your financial data.
+## Support
+For issues, questions, or feature requests, please open an issue in the repository.
 
 ---
 
-**Note**: This application stores data locally on your computer. No data is sent to external servers or cloud services.
+**Version**: 1.0  
+**Last Updated**: 2026  
+**Platform**: Windows Desktop (WPF)
