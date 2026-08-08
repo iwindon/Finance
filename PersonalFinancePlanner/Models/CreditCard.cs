@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -11,6 +12,8 @@ namespace PersonalFinancePlanner.Models
         private decimal _interestRate;
         private decimal _minimumPayment;
         private DateTime _dueDate;
+        private DateTime? _lastPaymentDate;
+        private List<PaymentHistory> _paymentHistory = new List<PaymentHistory>();
 
         public string Name
         {
@@ -58,6 +61,26 @@ namespace PersonalFinancePlanner.Models
             set
             {
                 _dueDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public DateTime? LastPaymentDate
+        {
+            get => _lastPaymentDate;
+            set
+            {
+                _lastPaymentDate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<PaymentHistory> PaymentHistory
+        {
+            get => _paymentHistory;
+            set
+            {
+                _paymentHistory = value;
                 OnPropertyChanged();
             }
         }

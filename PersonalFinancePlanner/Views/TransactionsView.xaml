@@ -31,6 +31,7 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0"
@@ -92,8 +93,40 @@
                                     Checked="IncomeRadioButton_Checked"/>
                         <RadioButton Content="Savings"
                                     GroupName="TransactionType"
+                                    Margin="0,0,0,3"
                                     Checked="SavingsRadioButton_Checked"/>
+                        <RadioButton Content="Debt Payment"
+                                    GroupName="TransactionType"
+                                    Checked="DebtPaymentRadioButton_Checked"/>
                     </StackPanel>
+                </Grid>
+
+                <!-- Credit Card Selector (visible only for Debt Payment) -->
+                <Grid Grid.Row="2" Margin="0,15,0,0" Name="CreditCardSelectorPanel" Visibility="Collapsed">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Column="0" Content="Credit Card:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <ComboBox Grid.Column="1"
+                             ItemsSource="{Binding CreditCardNames}"
+                             SelectedItem="{Binding SelectedCreditCard}"
+                             Width="250"
+                             HorizontalAlignment="Left"
+                             Padding="10,8"
+                             FontSize="14"
+                             Margin="0,0,15,0"/>
+
+                    <Button Grid.Column="2"
+                            Content="➕ Add Transaction"
+                            Command="{Binding AddTransactionCommand}"
+                            Style="{StaticResource ModernButtonStyle}"
+                            Background="{StaticResource AccentBlueBrush}"
+                            Padding="25,12"
+                            FontSize="16"
+                            FontWeight="Bold"/>
                 </Grid>
             </Grid>
         </Border>

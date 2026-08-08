@@ -203,42 +203,113 @@
                                            Margin="5"
                                            Background="{StaticResource CardBackgroundBrush}">
                                         <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*"/>
-                                                <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
 
-                                            <StackPanel Grid.Column="0">
-                                                <TextBlock Text="{Binding Name}" 
-                                                          FontWeight="Bold" 
-                                                          FontSize="15"
-                                                          Foreground="{StaticResource DarkBlueBrush}"/>
-                                                <TextBlock Margin="0,5,0,0">
-                                                    <Run Text="Balance: " FontWeight="SemiBold"/>
-                                                    <Run Text="{Binding Balance, StringFormat=C2}"/>
-                                                </TextBlock>
-                                                <TextBlock>
-                                                    <Run Text="Interest Rate: " FontWeight="SemiBold"/>
-                                                    <Run Text="{Binding InterestRate, StringFormat=N2}"/>
-                                                    <Run Text="%"/>
-                                                </TextBlock>
-                                                <TextBlock>
-                                                    <Run Text="Minimum Payment: " FontWeight="SemiBold"/>
-                                                    <Run Text="{Binding MinimumPayment, StringFormat=C2}"/>
-                                                </TextBlock>
-                                                <TextBlock>
-                                                    <Run Text="Due Date: " FontWeight="SemiBold"/>
-                                                    <Run Text="{Binding DueDate, StringFormat=d}"/>
-                                                </TextBlock>
-                                            </StackPanel>
+                                            <!-- Card Details -->
+                                            <Grid Grid.Row="0">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
 
-                                            <Button Grid.Column="1"
-                                                   Content="Remove"
-                                                   Command="{Binding DataContext.RemoveCardCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
-                                                   CommandParameter="{Binding}"
-                                                   Style="{StaticResource ModernButtonStyle}"
-                                                   Background="#E53935"
-                                                   VerticalAlignment="Top"/>
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding Name}" 
+                                                              FontWeight="Bold" 
+                                                              FontSize="15"
+                                                              Foreground="{StaticResource DarkBlueBrush}"/>
+                                                    <TextBlock Margin="0,5,0,0">
+                                                        <Run Text="Balance: " FontWeight="SemiBold"/>
+                                                        <Run Text="{Binding Balance, StringFormat=C2}"/>
+                                                    </TextBlock>
+                                                    <TextBlock>
+                                                        <Run Text="Interest Rate: " FontWeight="SemiBold"/>
+                                                        <Run Text="{Binding InterestRate, StringFormat=N2}"/>
+                                                        <Run Text="%"/>
+                                                    </TextBlock>
+                                                    <TextBlock>
+                                                        <Run Text="Minimum Payment: " FontWeight="SemiBold"/>
+                                                        <Run Text="{Binding MinimumPayment, StringFormat=C2}"/>
+                                                    </TextBlock>
+                                                    <TextBlock>
+                                                        <Run Text="Due Date: " FontWeight="SemiBold"/>
+                                                        <Run Text="{Binding DueDate, StringFormat=d}"/>
+                                                    </TextBlock>
+                                                    <TextBlock Visibility="{Binding LastPaymentDate, Converter={StaticResource StringToVisibilityConverter}}">
+                                                        <Run Text="Last Payment: " FontWeight="SemiBold" Foreground="Green"/>
+                                                        <Run Text="{Binding LastPaymentDate, StringFormat=d}" Foreground="Green"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <Button Grid.Column="1"
+                                                       Content="Remove"
+                                                       Command="{Binding DataContext.RemoveCardCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                       CommandParameter="{Binding}"
+                                                       Style="{StaticResource ModernButtonStyle}"
+                                                       Background="#E53935"
+                                                       VerticalAlignment="Top"/>
+                                            </Grid>
+
+                                            <!-- Payment History Expander -->
+                                            <Expander Grid.Row="1" 
+                                                     Header="Payment History" 
+                                                     Margin="0,10,0,0"
+                                                     IsExpanded="False">
+                                                <Border BorderBrush="{StaticResource BorderBrush}"
+                                                       BorderThickness="1"
+                                                       CornerRadius="3"
+                                                       Padding="5"
+                                                       Margin="0,5,0,0"
+                                                       Background="White">
+                                                    <ItemsControl ItemsSource="{Binding PaymentHistory}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <Border BorderBrush="#E0E0E0"
+                                                                       BorderThickness="0,0,0,1"
+                                                                       Padding="5"
+                                                                       Margin="0,2">
+                                                                    <Grid>
+                                                                        <Grid.ColumnDefinitions>
+                                                                            <ColumnDefinition Width="Auto"/>
+                                                                            <ColumnDefinition Width="*"/>
+                                                                        </Grid.ColumnDefinitions>
+
+                                                                        <StackPanel Grid.Column="0" Orientation="Vertical">
+                                                                            <TextBlock Text="{Binding PaymentDate, StringFormat='{}{0:MMM dd, yyyy}'}" 
+                                                                                      FontWeight="SemiBold"
+                                                                                      FontSize="12"/>
+                                                                        </StackPanel>
+
+                                                                        <StackPanel Grid.Column="1" Orientation="Vertical" Margin="10,0,0,0">
+                                                                            <TextBlock FontSize="11">
+                                                                                <Run Text="Payment: " FontWeight="SemiBold"/>
+                                                                                <Run Text="{Binding PaymentAmount, StringFormat=C2}" Foreground="Blue"/>
+                                                                            </TextBlock>
+                                                                            <TextBlock FontSize="11">
+                                                                                <Run Text="Interest: " FontWeight="SemiBold"/>
+                                                                                <Run Text="{Binding InterestPaid, StringFormat=C2}" Foreground="Red"/>
+                                                                                <Run Text=" | Principal: " FontWeight="SemiBold"/>
+                                                                                <Run Text="{Binding PrincipalPaid, StringFormat=C2}" Foreground="Green"/>
+                                                                            </TextBlock>
+                                                                            <TextBlock FontSize="11">
+                                                                                <Run Text="Remaining: " FontWeight="SemiBold"/>
+                                                                                <Run Text="{Binding RemainingBalance, StringFormat=C2}"/>
+                                                                            </TextBlock>
+                                                                            <TextBlock Text="{Binding Notes}" 
+                                                                                      FontSize="10" 
+                                                                                      FontStyle="Italic"
+                                                                                      Foreground="Gray"
+                                                                                      Visibility="{Binding Notes, Converter={StaticResource StringToVisibilityConverter}}"/>
+                                                                        </StackPanel>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </Border>
+                                            </Expander>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

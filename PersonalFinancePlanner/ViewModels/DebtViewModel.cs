@@ -146,11 +146,21 @@ namespace PersonalFinancePlanner.ViewModels
 
         private void LoadData()
         {
+            CreditCards.Clear();
             var savedCards = _dataService.LoadCreditCards();
             foreach (var card in savedCards)
             {
                 CreditCards.Add(card);
             }
+        }
+
+        /// <summary>
+        /// Refreshes credit card data from storage (useful when returning to this view after making payments)
+        /// </summary>
+        public void RefreshData()
+        {
+            LoadData();
+            OnPropertyChanged(nameof(CreditCards));
         }
 
         private void SaveData()

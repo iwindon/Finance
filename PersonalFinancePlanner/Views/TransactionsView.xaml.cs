@@ -38,6 +38,7 @@ namespace PersonalFinancePlanner.Views
             {
                 viewModel.TransactionType = TransactionType.Expense;
             }
+            HideCreditCardSelector();
         }
 
         private void IncomeRadioButton_Checked(object sender, RoutedEventArgs e)
@@ -46,6 +47,7 @@ namespace PersonalFinancePlanner.Views
             {
                 viewModel.TransactionType = TransactionType.Income;
             }
+            HideCreditCardSelector();
         }
 
         private void SavingsRadioButton_Checked(object sender, RoutedEventArgs e)
@@ -53,6 +55,32 @@ namespace PersonalFinancePlanner.Views
             if (DataContext is ViewModels.TransactionsViewModel viewModel)
             {
                 viewModel.TransactionType = TransactionType.Savings;
+            }
+            HideCreditCardSelector();
+        }
+
+        private void DebtPaymentRadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is ViewModels.TransactionsViewModel viewModel)
+            {
+                viewModel.TransactionType = TransactionType.DebtPayment;
+            }
+            ShowCreditCardSelector();
+        }
+
+        private void ShowCreditCardSelector()
+        {
+            if (CreditCardSelectorPanel != null)
+            {
+                CreditCardSelectorPanel.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void HideCreditCardSelector()
+        {
+            if (CreditCardSelectorPanel != null)
+            {
+                CreditCardSelectorPanel.Visibility = Visibility.Collapsed;
             }
         }
     }

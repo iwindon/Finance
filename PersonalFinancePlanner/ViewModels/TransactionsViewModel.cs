@@ -18,6 +18,7 @@ namespace PersonalFinancePlanner.ViewModels
     {
         private readonly TransactionService _transactionService;
         private readonly BudgetService _budgetService;
+        private readonly CreditCardPaymentService _paymentService;
 
         private DateTime _transactionDate = DateTime.Today;
         private string _description = string.Empty;
@@ -25,10 +26,12 @@ namespace PersonalFinancePlanner.ViewModels
         private string _selectedCategory = string.Empty;
         private TransactionType _transactionType = TransactionType.Expense;
         private string _filterCategory = "All";
+        private string _selectedCreditCard = string.Empty;
 
         public ObservableCollection<Transaction> Transactions { get; set; }
         public ObservableCollection<Transaction> FilteredTransactions { get; set; }
         public ObservableCollection<string> Categories { get; set; }
+        public ObservableCollection<string> CreditCardNames { get; set; }
 
         public DateTime TransactionDate
         {
@@ -60,6 +63,12 @@ namespace PersonalFinancePlanner.ViewModels
             set { _transactionType = value; OnPropertyChanged(); }
         }
 
+        public string SelectedCreditCard
+        {
+            get => _selectedCreditCard;
+            set { _selectedCreditCard = value; OnPropertyChanged(); }
+        }
+
         public string FilterCategory
         {
             get => _filterCategory;
@@ -82,10 +91,12 @@ namespace PersonalFinancePlanner.ViewModels
         {
             _transactionService = new TransactionService();
             _budgetService = new BudgetService();
+            _paymentService = new CreditCardPaymentService();
 
             Transactions = new ObservableCollection<Transaction>();
             FilteredTransactions = new ObservableCollection<Transaction>();
             Categories = new ObservableCollection<string>();
+            CreditCardNames = new ObservableCollection<string>();
 
             AddTransactionCommand = new RelayCommand(AddTransaction, CanAddTransaction);
             EditTransactionCommand = new RelayCommand<Transaction>(EditTransaction);
@@ -110,6 +121,14 @@ namespace PersonalFinancePlanner.ViewModels
             foreach (var category in budgetCategories.Select(c => c.Name))
             {
                 Categories.Add(category);
+            }
+
+            // Load credit card names
+            CreditCardNames.Clear();
+            var creditCards = _paymentService.LoadCreditCards();
+            foreach (var card in creditCards)
+            {
+                CreditCardNames.Add(card.Name);
             }
 
             if (Categories.Count > 1)
@@ -149,6 +168,13 @@ namespace PersonalFinancePlanner.ViewModels
                 _editingTransaction.Category = SelectedCategory;
                 _editingTransaction.Type = TransactionType;
 
+                // Handle debt payment updates
+                if (TransactionType == TransactionType.DebtPayment && !string.IsNullOrWhiteSpace(SelectedCreditCard))
+                {
+                    _editingTransaction.CreditCardName = SelectedCreditCard;
+                    // Note: Editing a payment doesn't re-apply it to avoid double-counting
+                }
+
                 _editingTransaction = null;
             }
             else
@@ -162,6 +188,13 @@ namespace PersonalFinancePlanner.ViewModels
                     Category = SelectedCategory,
                     Type = TransactionType
                 };
+
+                // Handle debt payments
+                if (TransactionType == TransactionType.DebtPayment && !string.IsNullOrWhiteSpace(SelectedCreditCard))
+                {
+                    transaction.CreditCardName = SelectedCreditCard;
+                    ApplyPaymentToCreditCard(transaction);
+                }
 
                 Transactions.Add(transaction);
             }
@@ -179,6 +212,7 @@ namespace PersonalFinancePlanner.ViewModels
             Amount = 0;
             TransactionDate = DateTime.Today;
             TransactionType = TransactionType.Expense;
+            SelectedCreditCard = string.Empty;
 
             ApplyFilter();
         }
@@ -193,6 +227,30 @@ namespace PersonalFinancePlanner.ViewModels
                 Amount = transaction.Amount;
                 SelectedCategory = transaction.Category;
                 TransactionType = transaction.Type;
+                SelectedCreditCard = transaction.CreditCardName ?? string.Empty;
+            }
+        }
+
+        private void ApplyPaymentToCreditCard(Transaction transaction)
+        {
+            var creditCards = _paymentService.LoadCreditCards();
+            var card = creditCards.FirstOrDefault(c => c.Name == transaction.CreditCardName);
+
+            if (card != null)
+            {
+                var breakdown = _paymentService.ApplyPayment(
+                    card,
+                    transaction.Amount,
+                    transaction.Date,
+                    transaction.Description
+                );
+
+                // Update transaction with payment breakdown
+                transaction.InterestPaid = breakdown.InterestPaid;
+                transaction.PrincipalPaid = breakdown.PrincipalPaid;
+
+                // Save updated credit cards
+                _paymentService.SaveCreditCards(creditCards);
             }
         }
 

@@ -10,6 +10,7 @@ using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
+using System.Collections.Generic;
 
 namespace PersonalFinancePlanner.ViewModels
 {
@@ -25,6 +26,8 @@ namespace PersonalFinancePlanner.ViewModels
 
         public ObservableCollection<SavingsEntry> SavingsEntries { get; set; }
         public ObservableCollection<ISeries> SavingsChartSeries { get; set; }
+        public List<LiveChartsCore.Kernel.Sketches.ICartesianAxis> SavingsChartYAxes { get; set; }
+        public List<LiveChartsCore.Kernel.Sketches.ICartesianAxis> SavingsChartXAxes { get; set; }
 
         public DateTime EntryDate
         {
@@ -66,6 +69,23 @@ namespace PersonalFinancePlanner.ViewModels
             SavingsEntries = new ObservableCollection<SavingsEntry>();
             SavingsChartSeries = new ObservableCollection<ISeries>();
 
+            SavingsChartYAxes = new List<LiveChartsCore.Kernel.Sketches.ICartesianAxis>
+            {
+                new Axis
+                {
+                    Labeler = value => value.ToString("C0"),
+                    MinStep = 100
+                }
+            };
+
+            SavingsChartXAxes = new List<LiveChartsCore.Kernel.Sketches.ICartesianAxis>
+            {
+                new Axis
+                {
+                    Labels = new string[] { }
+                }
+            };
+
             AddEntryCommand = new RelayCommand(AddEntry, CanAddEntry);
             DeleteEntryCommand = new RelayCommand<SavingsEntry>(DeleteEntry);
 
@@ -104,15 +124,17 @@ namespace PersonalFinancePlanner.ViewModels
 
         private void UpdateChart()
         {
-            var chartData = SavingsEntries
-                .OrderBy(e => e.Date)
-                .Select(e => e.Balance)
-                .ToList();
+            var orderedEntries = SavingsEntries.OrderBy(e => e.Date).ToList();
+            var chartData = orderedEntries.Select(e => e.Balance).ToList();
+            var dateLabels = orderedEntries.Select(e => e.Date.ToString("MMM dd")).ToArray();
 
             SavingsChartSeries.Clear();
 
             if (chartData.Any())
             {
+                // Update X-axis labels
+                ((Axis)SavingsChartXAxes[0]).Labels = dateLabels;
+
                 SavingsChartSeries.Add(new LineSeries<decimal>
                 {
                     Name = "Savings Balance",

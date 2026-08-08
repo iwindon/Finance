@@ -8,7 +8,8 @@ namespace PersonalFinancePlanner.Models
     {
         Income,
         Expense,
-        Savings
+        Savings,
+        DebtPayment
     }
 
     public class Transaction : INotifyPropertyChanged
@@ -18,6 +19,9 @@ namespace PersonalFinancePlanner.Models
         private decimal _amount;
         private string _category = string.Empty;
         private TransactionType _type;
+        private string? _creditCardName;
+        private decimal _interestPaid;
+        private decimal _principalPaid;
 
         public DateTime Date
         {
@@ -65,6 +69,36 @@ namespace PersonalFinancePlanner.Models
             set
             {
                 _type = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string? CreditCardName
+        {
+            get => _creditCardName;
+            set
+            {
+                _creditCardName = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public decimal InterestPaid
+        {
+            get => _interestPaid;
+            set
+            {
+                _interestPaid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public decimal PrincipalPaid
+        {
+            get => _principalPaid;
+            set
+            {
+                _principalPaid = value;
                 OnPropertyChanged();
             }
         }

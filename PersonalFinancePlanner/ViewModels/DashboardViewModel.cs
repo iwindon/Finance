@@ -10,6 +10,7 @@ using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
+using LiveChartsCore.SkiaSharpView.Extensions;
 
 namespace PersonalFinancePlanner.ViewModels
 {
@@ -59,6 +60,8 @@ namespace PersonalFinancePlanner.ViewModels
 
         public ObservableCollection<ISeries> SpendingByCategorySeries { get; set; }
         public ObservableCollection<ISeries> MonthlyTrendSeries { get; set; }
+        public List<LiveChartsCore.Kernel.Sketches.ICartesianAxis> MonthlyTrendYAxes { get; set; }
+        public List<LiveChartsCore.Kernel.Sketches.ICartesianAxis> MonthlyTrendXAxes { get; set; }
 
         public DashboardViewModel(NavigationViewModel navigationViewModel)
         {
@@ -70,6 +73,23 @@ namespace PersonalFinancePlanner.ViewModels
 
             SpendingByCategorySeries = new ObservableCollection<ISeries>();
             MonthlyTrendSeries = new ObservableCollection<ISeries>();
+
+            MonthlyTrendYAxes = new List<LiveChartsCore.Kernel.Sketches.ICartesianAxis>
+            {
+                new Axis
+                {
+                    Labeler = value => value.ToString("C0"),
+                    MinStep = 100
+                }
+            };
+
+            MonthlyTrendXAxes = new List<LiveChartsCore.Kernel.Sketches.ICartesianAxis>
+            {
+                new Axis
+                {
+                    Labels = new string[] { }
+                }
+            };
 
             RefreshData();
         }
@@ -144,7 +164,8 @@ namespace PersonalFinancePlanner.ViewModels
                         Name = item.Category,
                         DataLabelsPaint = new SolidColorPaint(SKColors.White),
                         DataLabelsSize = 14,
-                        DataLabelsPosition = LiveChartsCore.Measure.PolarLabelsPosition.Middle
+                        DataLabelsPosition = LiveChartsCore.Measure.PolarLabelsPosition.Middle,
+                        DataLabelsFormatter = point => point.PrimaryValue.ToString("C0")
                     });
                 }
             }
@@ -159,6 +180,8 @@ namespace PersonalFinancePlanner.ViewModels
                 .OrderBy(d => d)
                 .ToList();
 
+            var monthLabels = last6Months.Select(d => d.ToString("MMM yyyy")).ToArray();
+
             var incomeData = new List<decimal>();
             var expenseData = new List<decimal>();
 
@@ -171,6 +194,9 @@ namespace PersonalFinancePlanner.ViewModels
                 incomeData.Add(monthTransactions.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount));
                 expenseData.Add(monthTransactions.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount));
             }
+
+            // Update X-axis labels
+            ((Axis)MonthlyTrendXAxes[0]).Labels = monthLabels;
 
             MonthlyTrendSeries.Clear();
             MonthlyTrendSeries.Add(new LineSeries<decimal>

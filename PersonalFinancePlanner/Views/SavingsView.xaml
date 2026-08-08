@@ -148,6 +148,8 @@
                               Foreground="{StaticResource DarkBlueBrush}"
                               Margin="0,0,0,15"/>
                     <lvc:CartesianChart Series="{Binding SavingsChartSeries}"
+                                       YAxes="{Binding SavingsChartYAxes}"
+                                       XAxes="{Binding SavingsChartXAxes}"
                                        Height="400"/>
                 </StackPanel>
             </Border>

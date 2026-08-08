@@ -169,6 +169,8 @@
                                   Foreground="{StaticResource DarkBlueBrush}"
                                   Margin="0,0,0,15"/>
                         <lvc:CartesianChart Series="{Binding MonthlyTrendSeries}"
+                                           YAxes="{Binding MonthlyTrendYAxes}"
+                                           XAxes="{Binding MonthlyTrendXAxes}"
                                            Height="350"/>
                     </StackPanel>
                 </Border>
