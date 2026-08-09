@@ -554,6 +554,9 @@ namespace PersonalFinancePlanner.ViewModels
             }
 
             ResultsText = $"Plan '{plan.Name}' loaded. Last modified: {plan.LastModifiedDate:g}";
+
+            // Automatically calculate the payoff schedule so "View Detailed Schedule" button becomes enabled
+            Calculate();
         }
 
         private void NewPlan()

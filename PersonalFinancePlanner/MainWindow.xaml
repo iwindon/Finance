@@ -1,6 +1,7 @@
 <Window x:Class="PersonalFinancePlanner.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Icon="app.ico"
         xmlns:vm="clr-namespace:PersonalFinancePlanner.ViewModels"
         xmlns:views="clr-namespace:PersonalFinancePlanner.Views"
         Title="Personal Finance Planner" 

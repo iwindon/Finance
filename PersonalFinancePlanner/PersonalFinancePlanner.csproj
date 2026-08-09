@@ -7,7 +7,12 @@
 	<Nullable>enable</Nullable>
 	<AssemblyName>PersonalFinancePlanner</AssemblyName>
 	<RootNamespace>PersonalFinancePlanner</RootNamespace>
+	<ApplicationIcon>app.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+	<Resource Include="app.ico" />
+  </ItemGroup>
 
   <ItemGroup>
 	<PackageReference Include="LiveChartsCore.SkiaSharpView.WPF" Version="2.0.0-rc2" />
