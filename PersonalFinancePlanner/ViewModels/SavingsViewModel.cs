@@ -105,6 +105,14 @@ namespace PersonalFinancePlanner.ViewModels
             UpdateChart();
         }
 
+        /// <summary>
+        /// Refreshes savings data from storage (useful when returning to this view after making transactions)
+        /// </summary>
+        public void RefreshData()
+        {
+            LoadData();
+        }
+
         private void UpdateSummary()
         {
             CurrentBalance = SavingsEntries.OrderByDescending(e => e.Date).FirstOrDefault()?.Balance ?? 0;

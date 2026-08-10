@@ -259,10 +259,18 @@ namespace PersonalFinancePlanner.ViewModels
             var savingsService = new SavingsService();
             var entries = savingsService.LoadSavingsEntries();
 
+            // Calculate cumulative balance by getting the most recent balance and adding the new amount
+            decimal cumulativeBalance = amount;
+            var lastEntry = entries.OrderByDescending(e => e.Date).FirstOrDefault();
+            if (lastEntry != null)
+            {
+                cumulativeBalance = lastEntry.Balance + amount;
+            }
+
             var entry = new SavingsEntry
             {
                 Date = date,
-                Balance = amount,
+                Balance = cumulativeBalance,
                 Notes = description
             };
 

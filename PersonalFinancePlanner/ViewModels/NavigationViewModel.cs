@@ -68,13 +68,27 @@ namespace PersonalFinancePlanner.ViewModels
 
         private void NavigateToDebt()
         {
-            _debtViewModel ??= new DebtViewModel();
+            if (_debtViewModel == null)
+            {
+                _debtViewModel = new DebtViewModel();
+            }
+            else
+            {
+                _debtViewModel.RefreshData();
+            }
             CurrentView = _debtViewModel;
         }
 
         private void NavigateToSavings()
         {
-            _savingsViewModel ??= new SavingsViewModel();
+            if (_savingsViewModel == null)
+            {
+                _savingsViewModel = new SavingsViewModel();
+            }
+            else
+            {
+                _savingsViewModel.RefreshData();
+            }
             CurrentView = _savingsViewModel;
         }
 
