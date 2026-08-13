@@ -62,7 +62,14 @@ namespace PersonalFinancePlanner.ViewModels
 
         private void NavigateToBudget()
         {
-            _budgetViewModel ??= new BudgetViewModel();
+            if (_budgetViewModel == null)
+            {
+                _budgetViewModel = new BudgetViewModel();
+            }
+            else
+            {
+                _budgetViewModel.RefreshData();
+            }
             CurrentView = _budgetViewModel;
         }
 

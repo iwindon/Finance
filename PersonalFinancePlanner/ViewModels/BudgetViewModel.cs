@@ -83,10 +83,12 @@ namespace PersonalFinancePlanner.ViewModels
             var currentMonth = DateTime.Now.Month;
             var currentYear = DateTime.Now.Year;
 
+            // Include Expense and Savings transactions for budget tracking
             var currentMonthExpenses = transactions
                 .Where(t => t.Date.Month == currentMonth && 
                            t.Date.Year == currentYear && 
-                           t.Type == TransactionType.Expense)
+                           (t.Type == TransactionType.Expense || 
+                            t.Type == TransactionType.Savings))
                 .ToList();
 
             BudgetComparisons.Clear();
@@ -155,6 +157,14 @@ namespace PersonalFinancePlanner.ViewModels
                 "Success", 
                 System.Windows.MessageBoxButton.OK, 
                 System.Windows.MessageBoxImage.Information);
+        }
+
+        /// <summary>
+        /// Refreshes budget data and comparisons (useful when returning to this view after making transactions)
+        /// </summary>
+        public void RefreshData()
+        {
+            LoadData();
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

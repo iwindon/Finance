@@ -61,5 +61,37 @@ namespace PersonalFinancePlanner.Services
                 System.Diagnostics.Debug.WriteLine($"Error saving transactions: {ex.Message}");
             }
         }
+
+        /// <summary>
+        /// Fixes categories for existing transactions to match their type
+        /// Converts DebtPayment type to Expense type with "Debt Payments" category
+        /// </summary>
+        public void MigrateTransactionCategories()
+        {
+            var transactions = LoadTransactions();
+            bool modified = false;
+
+            foreach (var transaction in transactions)
+            {
+                // Convert old DebtPayment type to Expense with "Debt Payments" category
+                if (transaction.Type == TransactionType.DebtPayment)
+                {
+                    transaction.Type = TransactionType.Expense;
+                    transaction.Category = "Debt Payments";
+                    modified = true;
+                }
+                // Ensure Savings transactions have "Savings" category
+                else if (transaction.Type == TransactionType.Savings && transaction.Category != "Savings")
+                {
+                    transaction.Category = "Savings";
+                    modified = true;
+                }
+            }
+
+            if (modified)
+            {
+                SaveTransactions(transactions);
+            }
+        }
     }
 }

@@ -103,6 +103,9 @@ namespace PersonalFinancePlanner.ViewModels
             DeleteTransactionCommand = new RelayCommand<Transaction>(DeleteTransaction);
             ImportCsvCommand = new RelayCommand(ImportCsv);
 
+            // Fix categories for existing transactions (one-time migration)
+            _transactionService.MigrateTransactionCategories();
+
             LoadData();
         }
 
@@ -125,10 +128,17 @@ namespace PersonalFinancePlanner.ViewModels
 
             // Load credit card names
             CreditCardNames.Clear();
+            CreditCardNames.Add("None"); // Option for untracked debt payments
             var creditCards = _paymentService.LoadCreditCards();
             foreach (var card in creditCards)
             {
                 CreditCardNames.Add(card.Name);
+            }
+
+            // Set default selection
+            if (CreditCardNames.Count > 0)
+            {
+                SelectedCreditCard = "None";
             }
 
             if (Categories.Count > 1)
@@ -189,8 +199,9 @@ namespace PersonalFinancePlanner.ViewModels
                     Type = TransactionType
                 };
 
-                // Handle debt payments
-                if (TransactionType == TransactionType.DebtPayment && !string.IsNullOrWhiteSpace(SelectedCreditCard))
+                // Handle debt payments based on category
+                if (SelectedCategory == "Debt Payments" && TransactionType == TransactionType.Expense && 
+                    !string.IsNullOrWhiteSpace(SelectedCreditCard) && SelectedCreditCard != "None")
                 {
                     transaction.CreditCardName = SelectedCreditCard;
                     ApplyPaymentToCreditCard(transaction);
@@ -212,7 +223,7 @@ namespace PersonalFinancePlanner.ViewModels
             Amount = 0;
             TransactionDate = DateTime.Today;
             TransactionType = TransactionType.Expense;
-            SelectedCreditCard = string.Empty;
+            SelectedCreditCard = "None"; // Reset to None instead of empty
 
             ApplyFilter();
         }

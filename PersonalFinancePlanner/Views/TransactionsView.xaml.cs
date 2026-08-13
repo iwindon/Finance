@@ -38,7 +38,8 @@ namespace PersonalFinancePlanner.Views
             {
                 viewModel.TransactionType = TransactionType.Expense;
             }
-            HideCreditCardSelector();
+            // Don't hide - check if category is "Debt Payments"
+            CheckCategoryForDebtPayment();
         }
 
         private void IncomeRadioButton_Checked(object sender, RoutedEventArgs e)
@@ -59,13 +60,26 @@ namespace PersonalFinancePlanner.Views
             HideCreditCardSelector();
         }
 
-        private void DebtPaymentRadioButton_Checked(object sender, RoutedEventArgs e)
+        private void CategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            CheckCategoryForDebtPayment();
+        }
+
+        private void CheckCategoryForDebtPayment()
         {
             if (DataContext is ViewModels.TransactionsViewModel viewModel)
             {
-                viewModel.TransactionType = TransactionType.DebtPayment;
+                // Show credit card selector if category is "Debt Payments" AND type is Expense
+                if (viewModel.SelectedCategory == "Debt Payments" && 
+                    viewModel.TransactionType == TransactionType.Expense)
+                {
+                    ShowCreditCardSelector();
+                }
+                else
+                {
+                    HideCreditCardSelector();
+                }
             }
-            ShowCreditCardSelector();
         }
 
         private void ShowCreditCardSelector()
