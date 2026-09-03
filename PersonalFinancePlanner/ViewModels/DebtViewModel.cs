@@ -117,6 +117,7 @@ namespace PersonalFinancePlanner.ViewModels
         public ICommand NewPlanCommand { get; }
         public ICommand AdjustPlanCommand { get; }
         public ICommand DeletePlanCommand { get; }
+        public ICommand ViewAllDebtsCommand { get; }
 
         private List<PayoffScheduleEntry> _payoffSchedule = new List<PayoffScheduleEntry>();
         private int _totalMonths;
@@ -138,6 +139,7 @@ namespace PersonalFinancePlanner.ViewModels
             NewPlanCommand = new RelayCommand(NewPlan);
             AdjustPlanCommand = new RelayCommand(AdjustPlan, CanAdjustPlan);
             DeletePlanCommand = new RelayCommand<DebtPlan>(DeletePlan);
+            ViewAllDebtsCommand = new RelayCommand(ViewAllDebts, CanViewAllDebts);
 
             // Load saved credit cards
             LoadData();
@@ -468,6 +470,18 @@ namespace PersonalFinancePlanner.ViewModels
             );
 
             var window = new Views.PayoffScheduleWindow(viewModel);
+            window.Show();
+        }
+
+        private bool CanViewAllDebts()
+        {
+            return CreditCards.Count > 0;
+        }
+
+        private void ViewAllDebts()
+        {
+            var viewModel = new DebtListViewModel(CreditCards);
+            var window = new Views.DebtListWindow(viewModel);
             window.Show();
         }
 
